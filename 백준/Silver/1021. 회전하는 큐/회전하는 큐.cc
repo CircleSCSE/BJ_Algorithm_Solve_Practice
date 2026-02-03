@@ -1,101 +1,77 @@
 #include <iostream>
 #include <deque>
 #include <vector>
-#include <sstream>
-#include <string>
 
 using namespace std;
 
-void go_end(deque<string> &qu) {
-    string box;
-    box = qu.front();
-
-    qu.pop_front();
-    qu.push_back(box);
+void first_to_end(deque<int> &main_deq_) {
+    main_deq_.push_back(main_deq_.front());
+    main_deq_.pop_front();
 }
 
-void go_front(deque<string> &qu) {
-    string box;
-    box = qu.back();
-
-    qu.pop_back();
-    qu.push_front(box);
+void end_to_first(deque<int> &main_deq_) {
+    main_deq_.push_front(main_deq_.back());
+    main_deq_.pop_back();
 }
 
-int direction_select_n_go(deque<string> &qu, string exs_content) {
-    int idx = 0;
-    int move = 0;
-    // cout << qu.size() << " q_size" << endl;
+void find_min(vector<int> orders_, deque<int> &main_deq_) {
+    int result = 0;
 
-    for (int i = 0; i < int(qu.size()); i++) {
-        if (qu[i] == exs_content) {
-            idx = i;
-            break;
+    for (int pos : orders_) {
+
+        int idx = 0;
+        // pos의 값과 일치하는 현재 deque에서의 위치를 파악하는 반복문 필요
+        for (int i = 0; i < int(main_deq_.size()); i ++) {
+            if (pos == main_deq_[i]) {
+                idx = i;
+                break;
+            }
         }
+
+        if (idx < int(main_deq_.size()) / 2 + 1) {
+            // cout << "push left" << endl;
+            for (int i = 0; i < idx; i ++) {
+                first_to_end(main_deq_);
+                result += 1;
+            }
+            // cout << result << " now" << endl;
+
+        } else {
+            // cout << "push right" << endl;
+            for (int i = 0; i < int(main_deq_.size()) - idx; i ++) {
+                end_to_first(main_deq_);
+                result += 1;
+            }    
+            // cout << result << " now" << endl;
+        }
+
+        // cout << main_deq_.front() << endl;
+        main_deq_.pop_front();
     }
 
-    if (int(qu.size())/2 < idx) {
-        // cout << "go left" << endl;
-        move = qu.size() - idx;
-        // cout << move << endl;
-
-        for (int i = 0; i < move; i++) {
-            go_front(qu);
-        }
-        // cout << qu.front() << " ext" << endl;
-        qu.pop_front();
-
-        return move;
-
-    } else {
-        // cout << "go right" << endl;
-        move = idx;
-        // cout << move << endl;
-
-        for (int i = 0; i < move; i++) {
-            go_end(qu);
-        }
-        // cout << qu.front() << " ext" << endl;
-        qu.pop_front();
-
-        return move;
-    }
+    cout << result << endl;
 }
 
 int main(void) {
-    int els, exs;
-    int total = 0;
-    vector<string> vec_exs;
-    deque<string> q_main;
-    string input;
 
-    cin >> els >> exs;
+    int N = 0, M = 0, box = 0;
+    deque<int> main_deq;
+    vector<int> orders;
 
-    cin.ignore(); // getline은 쓰기 전에 앞에 남은 \n를 지워줘야 한다.
-    getline(cin, input);
-    stringstream ss(input);
-    
-    string word;
+    cin >> N >> M;
 
-    while (ss >> word) {
-        vec_exs.push_back(word);
-    }
-    // ------ 여기까지가 추출할 것 순서대로 있는 큐에 원소 넣기 -------
-
-    for (int i = 1;i <= els; i++) { // 조건문은 '선언; 조건; 증감' 으로 짜야한다.
-        q_main.push_back(to_string(i));
-    }
-    // ------ 여기까지가 메인 덱에 원소 넣기 -------
-
-    // 이제, 앞과 뒤로 가는 것 중 더 짧은 것을 파악해서 움직이고 pop 하는 것 반복.
-
-
-    
-    for (string w : vec_exs) {
-        total += direction_select_n_go(q_main, w);
+    // 뽑아낼 것들 순서대로 넣기
+    for (int i = 0; i < M; i++) {
+        cin >> box;
+        orders.push_back(box - 1);
     }
 
-    cout << total;
+    // 메인 덱 구성, 위치를 0부터 시작한다고 설정하고 덱 안에 앞에서부터 0부터 차곡차곡 넣기
+    for (int i = 0; i < N; i++) {
+        main_deq.push_back(i);
+    }
+
+    find_min(orders, main_deq);
 
     return 0;
 }
